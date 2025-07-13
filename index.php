@@ -185,7 +185,7 @@ $product = $products->fetchAll(PDO::FETCH_ASSOC);
                                 <i class='bx bxs-star'></i>
                                 <i class='bx bxs-star'></i>
                             </div>
-                            <a href="cart.html" class="add-to-cart">Add to Cart</a>
+                            <button onclick="addToCart(<?= $value['id'] ?>)" class="add-to-cart">Add to Cart</a>
                         </div>
                     </div>
                 </div>
@@ -601,11 +601,6 @@ require_once('./layout/sidebar.php');
 require_once('./layout/quickview.php');
 ?>
 <!-- End QuickView Modal Area -->
-<!-- Start Shopping Cart Modal -->
-<?php
-require_once("./layout/Cart.php");
-?>
-<!-- End Shopping Cart Modal -->
 
 <!-- Start Shopping Cart Modal -->
 <?php
