@@ -6,7 +6,22 @@ if (!isset($_SESSION['user']['email']) && $_SESSION['user']['login'] === true) {
     header('Location: login.php');
     exit();
 }
+if (isset($_REQUEST['submit'])) {
+    $order_id = $_REQUEST['order_id'] ?? null;
+    $user_id = $_SESSION['user']['id'] ?? null;
 
+    $order = $db->dbHandler->prepare('SELECT * FROM `orders` WHERE id = :order_id AND user_id = :user_id');
+    $order->bindParam(':order_id', $order_id);
+    $order->bindParam(':user_id', $user_id);
+    if ($order->execute()) {
+        $orderDetails = $order->fetch(PDO::FETCH_ASSOC);
+        if (!$orderDetails) {
+            $msg = "Order not found or you do not have permission to view this order.";
+        }
+    } else {
+        $msg = "Database error. Please try again later.";
+    }
+}
 
 require_once('./layout/meta.php');
 require_once('./layout/header.php');
@@ -15,10 +30,10 @@ require_once('./layout/header.php');
 <div class="page-title-area">
     <div class="container">
         <div class="page-title-content">
-            <h2>Dashboard</h2>
+            <h2>Track Order</h2>
             <ul>
                 <li><a href="index.php">Home</a></li>
-                <li>Dashboard</li>
+                <li>Track Order</li>
             </ul>
         </div>
     </div>
@@ -40,7 +55,57 @@ require_once('./layout/header.php');
         </div>
         <div class="col-md-8">
             <div class="card shadow rounded-0">
-                <div class="card-body">                    
+                <div class="card-body">
+                    <!-- Start Track Order Area -->
+                    <section class="track-order-area">
+                        <div class="container">
+                            <div class="track-order-content">
+                                <h2>All In One Package Tracking</h2>
+
+                                <form action="track_order.php" method="POST">
+                                    <div class="form-group">
+                                        <label>Order ID</label>
+                                        <input type="text" name="order_id" class="form-control">
+                                    </div>
+                                    <button type="submit" name="submit" class="default-btn">Track Order</button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- End Track Order Area -->
+                    <section class="track-order-area">
+                        <div class="container">
+                            <div class="track-order-content">
+                                <!-- <h2>Order Details</h2> -->
+                                <?php if (isset($msg)): ?>
+                                    <div class="alert alert-danger"><?= htmlspecialchars($msg) ?></div>
+
+                                <?php elseif (isset($orderDetails)): ?>
+                                    <!-- <h3>Order ID: <strong><?= htmlspecialchars($orderDetails['id']) ?></strong></h3>
+                                    <p>Total Amount: <strong><?= htmlspecialchars($orderDetails['total']) ?></strong></p>
+                                    
+                                    <p>We will contact you soon at <strong><?= htmlspecialchars($orderDetails['phone']) ?></strong></p> -->
+                                    <h3>Order Status : <strong>
+                                            <?php
+                                            if ($orderDetails['status'] == 0) {
+                                                echo "Order Pending..";
+                                            } elseif ($orderDetails['status'] == 1) {
+                                                echo "Order is Processing..";
+                                            } elseif ($orderDetails['status'] == 2) {
+                                                echo "Order is Ready for Delivery..";
+                                            } elseif ($orderDetails['status'] == 3) {
+                                                echo "Order Deliverd..";
+                                            } elseif ($orderDetails['status'] == 4) {
+                                                echo "Order is Cancle..";
+                                            }
+                                            ?>
+                                        </strong></h3>
+                                    <h3>last Update : <strong><?php echo $orderDetails['update_at'] ?></strong></h3>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
         </div>

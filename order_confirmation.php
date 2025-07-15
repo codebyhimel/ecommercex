@@ -2,12 +2,23 @@
 session_start();
 require_once('./config/db.php');
 $db = new Db();
-if (!isset($_SESSION['user']['email']) && $_SESSION['user']['login'] === true) {
-    header('Location: login.php');
-    exit();
+if (!isset($_REQUEST['order_id'])) {
+    // header('Location: http://localhost/ecoomercex/index.php');
+    // exit();
+    $msg = "Order ID is missing.";
 }
 
-
+$orderId = $_REQUEST['order_id'];
+$order = $db->dbHandler->prepare('SELECT * FROM `orders` WHERE id = :order_id');
+$order->bindParam(':order_id', $orderId);
+if ($order->execute()) {
+    $orderDetails = $order->fetch(PDO::FETCH_ASSOC);
+    if (!$orderDetails) {
+        $msg = "Order not found.";
+    }
+} else {
+    $msg = "Database error. Please try again later.";
+}
 require_once('./layout/meta.php');
 require_once('./layout/header.php');
 ?>
@@ -15,32 +26,34 @@ require_once('./layout/header.php');
 <div class="page-title-area">
     <div class="container">
         <div class="page-title-content">
-            <h2>Dashboard</h2>
+            <h2>Order Confirmation</h2>
             <ul>
                 <li><a href="index.php">Home</a></li>
-                <li>Dashboard</li>
+                <li>Order Confirmation</li>
             </ul>
         </div>
     </div>
 </div>
-<div class="container py-5">
+<!-- End Page Title -->
+
+
+<div class="container">
     <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow rounded-0">
+        <div class="col-lg-12">
+            <div class="card text-center shadow my-5">
                 <div class="card-body">
-                    <ul class="list-group">
-                        <li class="list-group-item"><a href="dashboard.php">Dashboard</a></li>
-                        <li class="list-group-item"><a href="track_order.php">Track Order</a></li>
-                        <li class="list-group-item"><a href="order.php">Order</a></li>
-                        <li class="list-group-item"><a href="logout.php">Logout</a></li>
-                        <!-- <li class="list-group-item"><a href="invoice.php">Invoice</a></li> -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-8">
-            <div class="card shadow rounded-0">
-                <div class="card-body">                    
+                    <?php if (isset($msg)): ?>
+                        <div class="alert alert-danger"><?php echo $msg; ?></div>
+                    <?php else: ?>
+                        <h3>Thank you for your order!</h3>
+                        <h3>Your order ID is: <strong><?php echo htmlspecialchars($orderDetails['id']); ?></strong></h3>
+                        <p>Total Amount: <strong><?php echo htmlspecialchars($orderDetails['total']); ?></strong></p>
+                        <p>Order Date: <strong><?php echo htmlspecialchars($orderDetails['create_at']); ?></strong></p>
+                        <p>We will contact you soo at <strong><?= $orderDetails['phone'] ?></strong></p>
+                    <?php endif; ?>
+                    <div class="text-center">
+                        <a href="dashboard.php" class="btn btn-success">Go to Dashboard</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -174,14 +187,49 @@ require_once('./layout/header.php');
     </div>
 </div>
 <!-- End Instagram Area -->
+<!-- Start Sidebar Modal -->
 <?php
-// require_once('./layout/facility.php');
-// require_once('./layout/instagram.php');
 require_once('./layout/sidebar.php');
+?>
+<!-- End Sidebar Modal -->
+
+<!-- Start QuickView Modal Area -->
+<?php
 require_once('./layout/quickview.php');
+?>
+<!-- End QuickView Modal Area -->
+
+<!-- Start Shopping Cart Modal -->
+<?php
 require_once('./layout/shipping.php');
+?>
+<!-- End Shopping Cart Modal -->
+
+<!-- Start Wishlist Modal -->
+<?php
 require_once('./layout/wishlist.php');
+?>
+<!-- End Wishlist Modal -->
+
+<!-- Start Size Guide Modal Area -->
+<?php
 require_once('./layout/sizegide.php');
+?>
+<!-- End Size Guide Modal Area -->
+
+<!-- Start Shipping Modal Area -->
+<?php
+require_once('./layout/shipping.php');
+?>
+<!-- End Shipping Modal Area -->
+
+<!-- Start Products Filter Modal Area -->
+<?php
 require_once('./layout/product-filter.php');
+?>
+<!-- End Products Filter Modal Area -->
+
+
+<?php
 require_once('./layout/footer.php');
 ?>

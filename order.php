@@ -7,6 +7,14 @@ if (!isset($_SESSION['user']['email']) && $_SESSION['user']['login'] === true) {
     exit();
 }
 
+$user_id = $_SESSION['user']['id'] ?? null;
+$orders = $db->dbHandler->prepare('SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC');
+$orders->execute([$user_id]);
+if (!$orders) {
+    $msg = "No orders found.";
+} else {
+    $orders = $orders->fetchAll(PDO::FETCH_ASSOC);
+}
 
 require_once('./layout/meta.php');
 require_once('./layout/header.php');
@@ -15,10 +23,10 @@ require_once('./layout/header.php');
 <div class="page-title-area">
     <div class="container">
         <div class="page-title-content">
-            <h2>Dashboard</h2>
+            <h2>Order List</h2>
             <ul>
                 <li><a href="index.php">Home</a></li>
-                <li>Dashboard</li>
+                <li>Order</li>
             </ul>
         </div>
     </div>
@@ -40,7 +48,58 @@ require_once('./layout/header.php');
         </div>
         <div class="col-md-8">
             <div class="card shadow rounded-0">
-                <div class="card-body">                    
+                <div class="card-body">
+                    <h2>Your Orders</h2>
+                    <?php if (isset($msg)): ?>
+                        <div class="alert alert-danger"><?php echo $msg; ?></div>
+                    <?php else: ?>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                foreach ($orders as $order) {
+                                ?>
+                                    <tr>
+                                        <td><?= $order['id'] ?></td>
+                                        <td><?= date('d M Y', strtotime($order['create_at'])) ?></td>
+                                        <td><?= $order['total'] ?></td>
+                                        <td>
+                                            <?php
+                                            if ($order['status'] == 0) {
+                                                echo "Order Pending..";
+                                            } elseif ($order['status'] == 1) {
+                                                echo "Order is Processing..";
+                                            } elseif ($order['status'] == 2) {
+                                                echo "Order is Ready for Delivery..";
+                                            } elseif ($order['status'] == 3) {
+                                                echo "Order Deliverd..";
+                                            } elseif ($order['status'] == 4) {
+                                                echo "Order is Cancle..";
+                                            }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <a href="invoice.php?order_id=<?= $order['id'] ?>" class='btn btn-primary'>View Details</a>
+                                            <!-- <a href="invoice.php?order_id=<?= $order['id'] ?>" class='btn btn-secondary'>Download Invoice</a> -->
+                                        </td>
+                                    </tr>
+                                <?php
+                                }
+                                ?>
+                                <tr>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

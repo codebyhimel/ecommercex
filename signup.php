@@ -2,20 +2,35 @@
 session_start();
 require_once('./config/db.php');
 $db = new Db();
-// $_SESSION['user']['email'] = null;
-// $_SESSION['user']['login'] = false;
+
 $msg = null;
 $pasMag = null;
-if ($_SESSION['user']['email'] != null && $_SESSION['user']['login'] == true) {
-    header('location: http://localhost/ecoomercex/dashboard.php');
+
+// Redirect to dashboard if user already logged in
+if (isset($_SESSION['user']['email']) && $_SESSION['user']['login'] === true) {
+    header('Location: http://localhost/ecoomercex/dashboard.php');
+    exit();
 }
-if (isset($_REQUEST['submit'])) {
-    if ($_REQUEST['password'] != $_REQUEST['pwd_confirm']) {
-        $pasMag = "Confirm Password Not Match";
-        // echo "<script>alert('$pasMag')</script>";
+
+// Handle form submission
+if (isset($_POST['submit'])) {
+    $fname = trim($_POST['fname']);
+    $lname = trim($_POST['lname']);
+    $username = trim($_POST['username']);
+    $phone = trim($_POST['phone']);
+    $email = trim($_POST['email']);
+    $passwordRaw = $_POST['password'];
+    $passwordConfirm = $_POST['pwd_confirm'];
+
+    if ($passwordRaw !== $passwordConfirm) {
+        $pasMag = "Confirm Password does not match";
     } else {
-        $sql = 'INSERT INTO `user`(`fname`,`lname`,`username`, `phone`, `email`, `password`) 
-		VALUES (:fname, :lname, :username, :phone, :email, :password)';
+        // Hash the password
+        $password = password_hash($passwordRaw, PASSWORD_DEFAULT);
+
+        // Prepare and bind
+        $sql = 'INSERT INTO `user` (`fname`, `lname`, `username`, `phone`, `email`, `password`) 
+                VALUES (:fname, :lname, :username, :phone, :email, :password)';
         $stmt = $db->dbHandler->prepare($sql);
         $stmt->bindParam(':fname', $fname);
         $stmt->bindParam(':lname', $lname);
@@ -23,25 +38,21 @@ if (isset($_REQUEST['submit'])) {
         $stmt->bindParam(':phone', $phone);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':password', $password);
-        $fname = $_REQUEST['fname'];
-        $lname = $_REQUEST['lname'];
-        $username = $_REQUEST['username'];
-        $phone = $_REQUEST['phone'];
-        $email = $_REQUEST['email'];
-        $password = md5($_REQUEST['password']);
+
         if ($stmt->execute()) {
-            $msg = "Registration Successfull please Login";
-            header('location: http://localhost/ecoomercex/login.php');
+            $_SESSION['register_success'] = "Registration successful. Please login.";
+            header('Location: http://localhost/ecoomercex/login.php');
+            exit();
         } else {
-            $msg = "Registration Faild please try again";
+            $msg = "Registration failed. Please try again.";
         }
     }
 }
 ?>
-<?php
-require_once('./layout/meta.php');
-require_once('./layout/header.php');
-?>
+
+<?php require_once('./layout/meta.php'); ?>
+<?php require_once('./layout/header.php'); ?>
+
 <!-- Start Page Title -->
 <div class="page-title-area">
     <div class="container">
@@ -65,45 +76,52 @@ require_once('./layout/header.php');
             <form class="signup-form" method="post" action="">
                 <div class="form-group">
                     <label>First Name</label>
-                    <input type="text" name="fname" class="form-control" placeholder="Enter your name" id="fname" name="fname">
+                    <input type="text" name="fname" class="form-control" placeholder="Enter your first name" id="fname" value="<?= htmlspecialchars($_POST['fname'] ?? '') ?>">
                 </div>
 
                 <div class="form-group">
                     <label>Last Name</label>
-                    <input type="text" name="lname" class="form-control" placeholder="Enter your name" id="lname" name="lname">
+                    <input type="text" name="lname" class="form-control" placeholder="Enter your last name" id="lname" value="<?= htmlspecialchars($_POST['lname'] ?? '') ?>">
                 </div>
+
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" name="username" class="form-control" placeholder="Enter your name" id="username" >
+                    <input type="text" name="username" class="form-control" placeholder="Enter your username" id="username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
                 </div>
+
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" name="email" class="form-control" placeholder="Enter your name" id="email" >
+                    <input type="email" name="email" class="form-control" placeholder="Enter your email" id="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                 </div>
-                <div class="form-group">
-                    <label>Phhone</label>
-                    <input type="tel" name="phone" class="form-control" placeholder="Enter your phone number" id="phone">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="password" class="form-control" placeholder="Enter your password" id="password" >
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="pwd_confirm" class="form-control" placeholder="Enter your password" id="pwd_confirm" >
-                </div>
-                <span class="text-danger"><?php if ($pasMag != null) {
-                                                echo $pasMag;
-                                            } ?></span>
-                <button type="submit" name="submit" class="default-btn">Signup</button>
 
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" name="phone" class="form-control" placeholder="Enter your phone number" id="phone" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter your password" id="password">
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" name="pwd_confirm" class="form-control" placeholder="Confirm your password" id="pwd_confirm">
+                </div>
+
+                <?php if ($pasMag): ?>
+                    <span class="text-danger"><?= $pasMag ?></span><br>
+                <?php elseif ($msg): ?>
+                    <span class="text-danger"><?= $msg ?></span><br>
+                <?php endif; ?>
+
+                <button type="submit" name="submit" class="default-btn">Signup</button>
                 <a href="index.php" class="return-store">or Return to Store</a>
             </form>
         </div>
     </div>
 </section>
 <!-- End SignUP Area -->
-
 <!-- Start Facility Area -->
 <section class="facility-area pb-70">
     <div class="container">
@@ -232,50 +250,14 @@ require_once('./layout/header.php');
     </div>
 </div>
 <!-- End Instagram Area -->
-
-<!-- Start Sidebar Modal -->
 <?php
+// require_once('./layout/facility.php');
+// require_once('./layout/instagram.php');
 require_once('./layout/sidebar.php');
-?>
-<!-- End Sidebar Modal -->
-
-<!-- Start QuickView Modal Area -->
-<?php
 require_once('./layout/quickview.php');
-?>
-<!-- End QuickView Modal Area -->
-
-<!-- Start Shopping Cart Modal -->
-<?php
 require_once('./layout/shipping.php');
-?>
-<!-- End Shopping Cart Modal -->
-
-<!-- Start Wishlist Modal -->
-<?php
 require_once('./layout/wishlist.php');
-?>
-<!-- End Wishlist Modal -->
-
-<!-- Start Size Guide Modal Area -->
-<?php
 require_once('./layout/sizegide.php');
-?>
-<!-- End Size Guide Modal Area -->
-
-<!-- Start Shipping Modal Area -->
-<?php
-require_once('./layout/shipping.php');
-?>
-<!-- End Shipping Modal Area -->
-
-<!-- Start Products Filter Modal Area -->
-<?php
 require_once('./layout/product-filter.php');
-?>
-<!-- End Products Filter Modal Area -->
-
-
-<?php
 require_once('./layout/footer.php');
 ?>

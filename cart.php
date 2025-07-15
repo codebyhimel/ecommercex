@@ -69,7 +69,7 @@ require_once('./layout/header.php');
                         ?>
                             <tr>
                                 <td class="product-thumbnail">
-                                    <a href="products-type.php?detail=<?= $itemgit['id']; ?>">
+                                    <a href="products-type.php?detail=<?= $item['id']; ?>">
                                         <?php if (isset($item['feat_img']) && !empty($item['feat_img'])) { ?>
                                             <img src="admin/uploads/products/<?= htmlspecialchars($item['feat_img']) ?>" alt="<?= htmlspecialchars($item['name']) ?>">
                                         <?php } else { ?>
@@ -133,7 +133,7 @@ require_once('./layout/header.php');
                     <li>Total <span><?= number_format($total + 80, 2); ?></span></li>
                 </ul>
 
-                <a href="billing.php" class="default-btn">Proceed to Checkout</a>
+                <a href="checkout.php" class="default-btn">Proceed to Checkout</a>
             </div>
         </form>
     </div>

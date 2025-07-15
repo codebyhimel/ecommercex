@@ -6,6 +6,26 @@ if (!isset($_SESSION['user']['email']) && $_SESSION['user']['login'] === true) {
     header('Location: login.php');
     exit();
 }
+$order_id = $_REQUEST['order_id'] ?? null;
+$user_id = $_SESSION['user']['id'] ?? null;
+if (!$order_id || !$user_id) {
+    $msg = "Order ID or User ID is missing.";
+} else {
+    $order = $db->dbHandler->prepare('SELECT * FROM `orders` WHERE id = :order_id AND user_id = :user_id');
+    $order->bindParam(':order_id', $order_id);
+    $order->bindParam(':user_id', $user_id);
+    if ($order->execute()) {
+        $order = $order->fetch(PDO::FETCH_ASSOC);
+        $items = $db->dbHandler->prepare('SELECT oi.*, p.name FROM order_items oi JOIN product p ON oi.product_id = p.id WHERE order_id = ?');
+        $items->execute([$order_id]);
+        $items = $items->fetchAll(PDO::FETCH_ASSOC);
+        if (!$order) {
+            $msg = "Order not found.";
+        }
+    } else {
+        $msg = "Database error. Please try again later.";
+    }
+}
 
 
 require_once('./layout/meta.php');
@@ -40,7 +60,56 @@ require_once('./layout/header.php');
         </div>
         <div class="col-md-8">
             <div class="card shadow rounded-0">
-                <div class="card-body">                    
+                <div class="card-body">
+                    <h2>Invoice #<?= $order['id'] ?></h2>
+                    <p><strong>Name:</strong> <?= $order['name'] ?><br>
+                        <strong>Phone:</strong> <?= $order['phone'] ?><br>
+                        <strong>Address:</strong> <?= $order['address'] ?><br>
+                        <strong>Payment:</strong> <?= $order['payment_method'] ?><br>
+                        <strong>Status:</strong> <?= $order['status'] ?><br>
+                        <strong>Date:</strong> <?= date('d M Y h:i A', strtotime($order['create_at'])) ?>
+                    </p>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php $subtotal = 0;
+                            foreach ($items as $item): $line = $item['qty'] * $item['price'];
+                                $subtotal += $line; ?>
+                                <tr>
+                                    <td><?= $item['name'] ?></td>
+                                    <td><?= $item['qty'] ?></td>
+                                    <td><?= $item['price'] ?></td>
+                                    <td><?= $line ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3">Subtotal</th>
+                                <td><?= $subtotal ?> ৳</td>
+                            </tr>
+                            <tr>
+                                <th colspan="3">Shipping</th>
+                                <td><?= $order['shipping'] ?> ৳</td>
+                            </tr>
+                            <tr>
+                                <th colspan="3">Discount</th>
+                                <td><?= $order['discount'] ?> ৳</td>
+                            </tr>
+                            <tr>
+                                <th colspan="3">Total</th>
+                                <td><strong><?= $order['total'] ?> ৳</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
