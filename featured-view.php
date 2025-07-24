@@ -241,11 +241,10 @@ $categoryName = $stmt->fetch(PDO::FETCH_ASSOC);
                                     ?>
                                         <div class="sale-tag">Sale!</div>
                                     <?php
-                                    }
-                                    elseif($value['is_new']){
-                                        ?>
+                                    } elseif ($value['is_new']) {
+                                    ?>
                                         <div class="sale-tag">New!</div>
-                                        <?php
+                                    <?php
                                     }
                                     ?>
 
@@ -254,8 +253,8 @@ $categoryName = $stmt->fetch(PDO::FETCH_ASSOC);
                                 <div class="products-content">
                                     <h3><a href="products-type.php?detail=<?= $value['id']; ?>"><?= $value['name']; ?></a></h3>
                                     <div class="price">
-                                                                       <span class="old-price">$<?= $value['price']; ?></span>
-                                <span class="new-price">$<?php echo $value['price'] - $value['discount'] ?></span>
+                                        <span class="old-price">$<?= $value['price']; ?></span>
+                                        <span class="new-price">$<?php echo $value['price'] - $value['discount'] ?></span>
                                     </div>
                                     <div class="star-rating">
                                         <i class='bx bxs-star'></i>
@@ -264,7 +263,8 @@ $categoryName = $stmt->fetch(PDO::FETCH_ASSOC);
                                         <i class='bx bxs-star'></i>
                                         <i class='bx bxs-star'></i>
                                     </div>
-                                    <a href="cart.html" class="add-to-cart">Add to Cart</a>
+                                    <!-- <a href="cart.html" class="add-to-cart">Add to Cart</a> -->
+                                    <button onclick="addToCart(<?= $value['id'] ?>)" class="btn add-to-cart">Add to Cart</button>
                                 </div>
                             </div>
                         </div>

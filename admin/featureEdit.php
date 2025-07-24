@@ -53,7 +53,7 @@ if ($_SESSION['data']['email'] != null && $_SESSION['data']['login'] == true) {
         // var_dump($_FILES['image']);
 
         // Upload File
-        $isActive = $_REQUEST['isActive'];
+        $is_active = $_REQUEST['is_active'];
 
         $stmt->execute();
         $msg = "Featured Update Success!";
@@ -99,7 +99,7 @@ if ($_SESSION['data']['email'] != null && $_SESSION['data']['login'] == true) {
                                         <label class="" for="title">Title</label>
                                         <input type="text" name="title" class="form-control" id="title" placeholder="title" value="<?= $data['title']; ?>">
                                     </div>
-                                    
+
                                     <div class="form-group">
                                         <label class="" for="content">Content</label>
                                         <input type="text" name="content" class="form-control" id="content" placeholder="content" value="<?= $data['content']; ?>">

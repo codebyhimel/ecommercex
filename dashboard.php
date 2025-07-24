@@ -2,7 +2,12 @@
 session_start();
 require_once('./config/db.php');
 $db = new Db();
-if (!isset($_SESSION['user']['email']) && $_SESSION['user']['login'] === true) {
+if (
+    !isset($_SESSION['user']) ||
+    !isset($_SESSION['user']['email']) ||
+    !isset($_SESSION['user']['login']) ||
+    $_SESSION['user']['login'] !== true
+) {
     header('Location: login.php');
     exit();
 }
@@ -40,7 +45,7 @@ require_once('./layout/header.php');
         </div>
         <div class="col-md-8">
             <div class="card shadow rounded-0">
-                <div class="card-body">                    
+                <div class="card-body">
                 </div>
             </div>
         </div>

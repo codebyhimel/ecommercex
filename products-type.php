@@ -110,9 +110,9 @@ $attr = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             <span><?= $attr_name[0]['name']; ?>:</span>
                             <?php
-                            $sql = "SELECT `attr_value_id` FROM `product_attr_value` WHERE `attr_id` = ? ";
+                            $sql = "SELECT `attr_value_id` FROM `product_attr_value` WHERE `attr_id` = ? AND product_id = ? ";
                             $stmt = $db->dbHandler->prepare($sql);
-                            $stmt->execute([$value['attr_id']]);
+                            $stmt->execute([$value['attr_id'], $_GET['detail']]);
                             $attr_val_id = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             // print_r($attr_val_id); 
                             ?>
@@ -123,7 +123,7 @@ $attr = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     $stmt->execute([$items['attr_value_id']]);
                                     $attr_value = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 ?>
-                                    <li><a href="#"><?=$attr_value[0]['value'];?></a></li>
+                                    <li><a href="#"><?= $attr_value[0]['value']; ?></a></li>
                                 <?php
 
                                 }
@@ -145,8 +145,8 @@ $attr = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <input type="text" value="1">
                             <span class="plus-btn"><i class='bx bx-plus'></i></span>
                         </div>
-
-                        <button type="submit" class="default-btn"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                        <button onclick="addToCart(<?= $_GET['detail'] ?>)" class="add-to-cart default-btn"><i class="fas fa-cart-plus"></i> Add to Cart</a>
+                            <!-- <button type="submit" class="default-btn"><i class="fas fa-cart-plus"></i> Add to Cart</button> -->
                     </div>
 
                     <div class="wishlist-compare-btn">

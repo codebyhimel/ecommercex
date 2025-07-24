@@ -73,7 +73,7 @@
                 <div class="container">
                     <div class="xton-responsive-menu">
                         <div class="logo">
-                            <a href="index.html">
+                            <a href="index.php">
                                 <img src="assets/img/logo.png" class="main-logo" alt="logo">
                                 <img src="assets/img/white-logo.png" class="white-logo" alt="logo">
                             </a>

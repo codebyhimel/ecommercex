@@ -185,7 +185,7 @@ $product = $products->fetchAll(PDO::FETCH_ASSOC);
                                 <i class='bx bxs-star'></i>
                                 <i class='bx bxs-star'></i>
                             </div>
-                            <button onclick="addToCart(<?= $value['id'] ?>)" class="add-to-cart">Add to Cart</a>
+                            <button onclick="addToCart(<?= $value['id'] ?>)" class="btn add-to-cart">Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -279,7 +279,8 @@ $product = $products->fetchAll(PDO::FETCH_ASSOC);
                                 <i class='bx bxs-star'></i>
                                 <i class='bx bxs-star'></i>
                             </div>
-                            <a href="cart.html" class="add-to-cart">Add to Cart</a>
+                            <!-- <a href="cart.html" class="add-to-cart">Add to Cart</a> -->
+                             <button onclick="addToCart(<?= $value['id'] ?>)" class="btn add-to-cart">Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -412,7 +413,8 @@ $product = $products->fetchAll(PDO::FETCH_ASSOC);
                                 <i class='bx bxs-star'></i>
                                 <i class='bx bxs-star'></i>
                             </div>
-                            <a href="cart.html" class="add-to-cart">Add to Cart</a>
+                            <!-- <a href="cart.html" class="add-to-cart">Add to Cart</a> -->
+                             <button onclick="addToCart(<?= $value['id'] ?>)" class="btn add-to-cart">Add to Cart</button>
                         </div>
                     </div>
                 </div>
